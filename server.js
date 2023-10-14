@@ -2,24 +2,19 @@ const express = require('express');
 const { ServerApiVersion } = require('mongodb');
 const app = express();
 const port = 5000;
+require('dotenv').config();
 
-app.get('/', (req, res) => {
-  res.send('<b>Hello World!</b>')
-});
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
+let client;
 const MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://dailykingadmin:1321@cluster0.hl4wsj4.mongodb.net/?retryWrites=true&w=majority";
-const client = new MongoClient(uri, { 
+client = new MongoClient(process.env.MONGODB, { 
     serverApi: {
         version: ServerApiVersion.v1,
         strict:true,
         deprecationErrors: true
     } 
 });
+
+run().catch(console.dir);
 
 async function run() {
     try {
@@ -32,9 +27,16 @@ async function run() {
         // Ensures that the client will close when you finish/error
         //await client.close();
     }
-    }
-run().catch(console.dir);
+}
 
 app.get('/posts', (req, res) => {
     res.send('Text response')
+});
+
+app.get('/', (req, res) => {
+  res.send('<b>Hello World!</b>')
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
