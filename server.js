@@ -24,11 +24,10 @@ async function run() {
     } finally { }
 }
 
-app.get('/posts', (req, res) => {
-  const db = client.db('DailyKing');
+app.get('/posts', async (req, res) => {
+  const db = client.db('dailyking');
   const collection = db.collection('Posts');
-  const result = collection.find().toArray();
-  console.log(result);
+  const result = await collection.find().toArray();
   res.send(result);
 });
 
