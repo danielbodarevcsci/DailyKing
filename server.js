@@ -1,8 +1,12 @@
-const express = require('express');
-const app = express();
 const port = 5000;
 const { ServerApiVersion } = require('mongodb');
 require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const { lookup } = require('geoip-lite');
+
+app.use(cors());
 
 let client;
 const MongoClient = require('mongodb').MongoClient;
@@ -33,6 +37,16 @@ app.get('/posts', async (req, res) => {
 
 app.get('/', (req, res) => {
     res.send('Main Page');
+});
+
+app.get('/location', (req, res) => {
+    const ip = '2601:204:cc01:b7c0:51b4:d617:d404:ab66';
+    const geo = lookup(ip);
+    if (geo) {
+        res.send({ 'city': geo.city });
+    } else {
+        res.send({ 'city': 'not found' });
+    }
 });
 
 app.listen(port, () => {
