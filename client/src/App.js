@@ -43,13 +43,13 @@ function ShowPosts() {
 }
 
 function ShowWinner({ data }) {
-  if (!data || !data.roll) {
+  if (!data) {
     return <p>No posts found in your location...</p>;
   }
   return (
     <div>
-      <h2>{data.city}</h2>
-      <h4>{data.message}</h4>
+      <h2>{data.location}</h2>
+      <h4>{data.message ?? '(No posts yet)'}</h4>
       <p>{data.roll?.toLocaleString()}</p>
       <p>Your daily roll: { data.localRoll?.toLocaleString() }</p>
       <p>{data.localRoll > data.roll ? 'You won! Refresh the page...' : ''}</p>

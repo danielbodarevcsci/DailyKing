@@ -13,22 +13,22 @@ const ipCache = {};
 
 app.get('/', async (req, res) => {
     const ip = getIp(req);
-    const city = getCity(ip);
-    var cityPost = await getCityPost(city);
+    const location = getLocation(ip);
+    var post = await getPost(location);
     res.send({
-        city: city,
-        message: cityPost?.message,
-        roll: cityPost?.roll,
+        location: location,
+        message: post?.message,
+        roll: post?.roll,
         localRoll: checkIp(ip)
     }); 
 });
 
-function getCity(ip) {
+function getLocation(ip) {
     const geo = lookup(ip);
     if (geo) {
-        return geo.city;
+        return `${geo.city}, ${geo.region}`;
     } else {
-        return 'Not Found';
+        return 'Home';
     }
 }
 
@@ -36,26 +36,26 @@ function getIp(req) {
     return req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 }
 
-async function getCityPost(city) {
+async function getPost(location) {
     const db = client.db('dailyking');
     const collection = db.collection('Posts');
-    const result = await collection.findOne({city:city});
+    const result = await collection.findOne({location:location});
     return result;
 }
 
-async function updateCityPost(cityPost) {
+async function updatePost(post) {
     const db = client.db('dailyking');
     const collection = db.collection('Posts');
-    await collection.updateOne({_id:cityPost._id}, {$set: {message: cityPost.message, roll: cityPost.roll}});
+    await collection.updateOne({_id:post._id}, {$set: {message: post.message, roll: post.roll}});
 }
 
-async function insertCityPost(post) {
+async function insertPost(post) {
     const db = client.db('dailyking');
     const collection = db.collection('Posts');
     await collection.insertOne(post, 
     (err, res) => {
         if (err) throw err;
-        console.log('Inserted City Post: ', message);
+        console.log('Inserted Post: ', message);
     });
 }
 
@@ -98,20 +98,20 @@ function rememberIp(ip, roll) {
 app.post('/submit-message', async (req, res) => {
     console.log(req.body);
     const ip = getIp(req);
-    const city = getCity(ip);
-    var cityPost = await getCityPost(city);
+    const location = getLocation(ip);
+    var post = await getPost(location);
     const roll = getRoll();
-    if (!cityPost) {
-        cityPost = {
+    if (!post) {
+        post = {
             message: req.body.message,
-            city: city,
+            location: location,
             roll: roll
         }
-        insertCityPost(cityPost);
-    } else if (roll > cityPost.roll) {
-        cityPost.roll = roll;
-        cityPost.message = req.body.message;
-        updateCityPost(cityPost);
+        insertPost(post);
+    } else if (roll > post.roll) {
+        post.roll = roll;
+        post.message = req.body.message;
+        updatePost(post);
     }
     rememberIp(ip, roll);
     res.json({response: 'Message received.'});
