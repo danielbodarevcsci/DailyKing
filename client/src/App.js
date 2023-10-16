@@ -1,5 +1,12 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
+import axios from 'axios'
+
+function sendDataToServer(data) {
+  axios.post('http://localhost:5000/submit-message', data)
+    .then(response => { console.log(response) })
+    .catch(error => console.error(error));
+}
 
 function App() {
   return (
@@ -9,12 +16,11 @@ function App() {
 
 export default App;
 
-let url = 'http://localhost:5000/';
-
 function ShowPosts() {
   const [data, setData] = useState([]);
+  const [rkey, refresh] = useState(0);
   useEffect(() => {
-    fetch(url, { headers:{'Access-Control-Allow-Origin': '*'}})
+    fetch('http://localhost:5000/', { headers:{'Access-Control-Allow-Origin': '*'}})
     .then(response => {
       if (!response.ok) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
@@ -27,13 +33,48 @@ function ShowPosts() {
     .catch(error => {
       console.log('Fetch error: ', error);
     })
-  }, []);
+  }, [rkey]);
   return (
     <div style={{margin:10}}>
-      <p>City: {data.city}</p>
-      <p>Message: {data.message}</p>
-      <p>Winning Roll: {data.roll?.toLocaleString()}</p>
-      <p>Your Roll: {data.newroll?.toLocaleString()}</p>
+      <ShowWinner data={data} />
+      <ShowSubmit hasSent={data.localRoll} refresh={refresh} />
     </div>
+  );
+}
+
+function ShowWinner({ data }) {
+  if (!data || !data.roll) {
+    return <p>No posts found in your location...</p>;
+  }
+  return (
+    <div>
+      <h2>{data.city}</h2>
+      <h4>{data.message}</h4>
+      <p>{data.roll?.toLocaleString()}</p>
+      <p>Your daily roll: { data.localRoll?.toLocaleString() }</p>
+      <p>{data.localRoll > data.roll ? 'You won! Refresh the page...' : ''}</p>
+    </div>
+  );
+}
+
+function ShowSubmit(props) {
+  const [formData, setFormData] = useState({ message: '' });
+  const onHandleChange = (e) => {
+    setFormData({...formData, [e.target.name]: e.target.value})
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    sendDataToServer(formData);
+    props.refresh(2);
+  };
+  if (props.hasSent) {
+    return;
+  }
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" autoComplete='off' value={formData.message} name='message' onChange={onHandleChange} />
+      <br />
+      <button type='submit'>Submit and Roll</button>
+    </form>
   );
 }

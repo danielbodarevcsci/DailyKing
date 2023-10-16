@@ -6,40 +6,34 @@ const cors = require('cors');
 const app = express();
 app.options('*', cors());
 app.use(cors());
+app.use(express.json());
 const { lookup } = require('geoip-lite');
 
-app.get('/', async (req, res, next) => {
-    const city = getCity(req);
-    const roll = getRandomNumber();
+const ipCache = {};
+
+app.get('/', async (req, res) => {
+    const ip = getIp(req);
+    const city = getCity(ip);
     var cityPost = await getCityPost(city);
-    if (!cityPost) {
-        await insertCityPost('Undefined message', roll, city);
-        cityPost = {
-            message: 'New user message',
-            roll: roll
-        };
-    }
-    else if (roll > cityPost.roll) {
-        cityPost.message = 'Overwritten message';
-        cityPost.roll = roll;
-        updateCityPost(cityPost);
-    }
     res.send({
         city: city,
-        message: cityPost.message,
-        roll: cityPost.roll,
-        newroll: roll
+        message: cityPost?.message,
+        roll: cityPost?.roll,
+        localRoll: checkIp(ip)
     }); 
 });
 
-function getCity(req) {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+function getCity(ip) {
     const geo = lookup(ip);
     if (geo) {
         return geo.city;
     } else {
         return 'Not Found';
     }
+}
+
+function getIp(req) {
+    return req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 }
 
 async function getCityPost(city) {
@@ -55,18 +49,18 @@ async function updateCityPost(cityPost) {
     await collection.updateOne({_id:cityPost._id}, {$set: {message: cityPost.message, roll: cityPost.roll}});
 }
 
-async function insertCityPost(message, roll, city) {
+async function insertCityPost(post) {
     const db = client.db('dailyking');
     const collection = db.collection('Posts');
-    await collection.insertOne({message: message, roll: roll, city: city}, 
+    await collection.insertOne(post, 
     (err, res) => {
         if (err) throw err;
         console.log('Inserted City Post: ', message);
     });
 }
 
-function getRandomNumber() {
-    return Math.floor(Math.random() * 2500);
+function getRoll() {
+    return Math.floor(Math.random() * 95_000);
 }
 
 let client;
@@ -91,4 +85,34 @@ async function run() {
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+function checkIp(ip) {
+    return ipCache[ip];
+}
+
+function rememberIp(ip, roll) {
+    ipCache[ip] = roll;
+}
+
+app.post('/submit-message', async (req, res) => {
+    console.log(req.body);
+    const ip = getIp(req);
+    const city = getCity(ip);
+    var cityPost = await getCityPost(city);
+    const roll = getRoll();
+    if (!cityPost) {
+        cityPost = {
+            message: req.body.message,
+            city: city,
+            roll: roll
+        }
+        insertCityPost(cityPost);
+    } else if (roll > cityPost.roll) {
+        cityPost.roll = roll;
+        cityPost.message = req.body.message;
+        updateCityPost(cityPost);
+    }
+    rememberIp(ip, roll);
+    res.json({response: 'Message received.'});
 });
