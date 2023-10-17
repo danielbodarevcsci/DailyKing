@@ -2,9 +2,12 @@ import './App.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'
 
-function sendDataToServer(data) {
+function sendDataToServer(data, rkey, refresh) {
   axios.post('http://localhost:5000/submit-message', data)
-    .then(response => console.log(response))
+    .then(response => {
+      console.log(response);
+      refresh(rkey + 1);
+    })
     .catch(error => console.error(error));
 }
 
@@ -61,7 +64,6 @@ function ShowWinner({ data }) {
       <h4>{data.message ?? '(No posts yet)'}</h4>
       <p>{data.roll?.toLocaleString()}</p>
       <p>{data.localRoll ? `You rolled: ${data.localRoll?.toLocaleString()}` : ''}</p>
-      <p>{data.localRoll > data.roll ? 'You won! Refresh the page...' : ''}</p>
     </div>
   );
 }
@@ -75,8 +77,8 @@ function ShowSubmit(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.message) {
-      sendDataToServer(formData);
-      props.refresh(props.rkey + 1);
+      sendDataToServer(formData, props.rkey, props.refresh);
+      props.refresh(props.rkey + 2);
       setIsSubmitted(true);
     }
   };

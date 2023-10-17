@@ -107,11 +107,11 @@ app.post('/submit-message', async (req, res) => {
             location: location,
             roll: roll
         }
-        insertPost(post);
+        await insertPost(post);
     } else if (roll > post.roll) {
         post.roll = roll;
         post.message = req.body.message;
-        updatePost(post);
+        await updatePost(post);
     }
     rememberIp(ip, roll);
     res.json({response: 'Message received.'});
