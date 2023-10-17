@@ -37,9 +37,16 @@ function ShowPosts() {
   return (
     <div style={{margin:10}}>
       <ShowWinner data={data} />
-      <ShowSubmit hasSent={data.localRoll} refresh={refresh} />
+      <ShowSubmit hasSent={data.localRoll} refresh={refresh} rkey={rkey} />
+      <br /><br />
+      <button onClick={resetData}>clear</button>
     </div>
   );
+}
+
+function resetData() {
+  axios.post('http://localhost:5000/reset');
+  window.location.reload();
 }
 
 function ShowWinner({ data }) {
@@ -51,7 +58,7 @@ function ShowWinner({ data }) {
       <h2>{data.location}</h2>
       <h4>{data.message ?? '(No posts yet)'}</h4>
       <p>{data.roll?.toLocaleString()}</p>
-      <p>Your daily roll: { data.localRoll?.toLocaleString() }</p>
+      <p>{data.localRoll ? `You rolled: ${data.localRoll?.toLocaleString()}` : ''}</p>
       <p>{data.localRoll > data.roll ? 'You won! Refresh the page...' : ''}</p>
     </div>
   );
@@ -64,8 +71,10 @@ function ShowSubmit(props) {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    sendDataToServer(formData);
-    props.refresh(2);
+    if (formData.message) {
+      sendDataToServer(formData);
+      props.refresh(props.rkey + 1);
+    }
   };
   if (props.hasSent) {
     return;

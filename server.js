@@ -116,3 +116,5 @@ app.post('/submit-message', async (req, res) => {
     rememberIp(ip, roll);
     res.json({response: 'Message received.'});
 });
+
+app.post('/reset', (req, res) => { for (var ip in ipCache) delete ipCache[ip] });
