@@ -1,6 +1,7 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function sendDataToServer(data, rkey, refresh) {
   axios.post('http://localhost:5000/submit-message', data)
@@ -38,7 +39,7 @@ function ShowPosts() {
     })
   }, [rkey]);
   return (
-    <div style={{margin:10}}>
+    <div class="jumbotron text-center">
       <ShowWinner data={data} />
       <ShowSubmit hasSent={data.localRoll} refresh={refresh} rkey={rkey} />
       <br /><br />
@@ -61,7 +62,7 @@ function ShowWinner({ data }) {
   return (
     <div>
       <h2>{data.location}</h2>
-      <h4>{data.message ?? '(No posts yet)'}</h4>
+      <h3>{data.message ?? '(No posts yet)'}</h3>
       <p>{data.roll?.toLocaleString()}</p>
       <p>{data.localRoll ? `You rolled: ${data.localRoll?.toLocaleString()}` : ''}</p>
     </div>
@@ -86,8 +87,8 @@ function ShowSubmit(props) {
     return;
   }
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" autoComplete='off' value={formData.message} name='message' onChange={onHandleChange} />
+    <form class="form-group" onSubmit={handleSubmit}>
+      <textarea class="form-control" rows="4" value={formData.message} name='message' onChange={onHandleChange} />
       <br />
       <button type='submit' disabled={isSubmitted}>Submit and Roll</button>
     </form>
