@@ -4,7 +4,7 @@ import axios from 'axios'
 
 function sendDataToServer(data) {
   axios.post('http://localhost:5000/submit-message', data)
-    .then(response => { console.log(response) })
+    .then(response => console.log(response))
     .catch(error => console.error(error));
 }
 
@@ -31,7 +31,7 @@ function ShowPosts() {
       setData(data);
     })
     .catch(error => {
-      console.log('Fetch error: ', error);
+      console.error('Fetch error: ', error);
     })
   }, [rkey]);
   return (
@@ -45,7 +45,9 @@ function ShowPosts() {
 }
 
 function resetData() {
-  axios.post('http://localhost:5000/reset');
+  axios.post('http://localhost:5000/reset')
+    .then(response => console.log(response))
+    .catch(error => console.error(error));
   window.location.reload();
 }
 
@@ -66,6 +68,7 @@ function ShowWinner({ data }) {
 
 function ShowSubmit(props) {
   const [formData, setFormData] = useState({ message: '' });
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const onHandleChange = (e) => {
     setFormData({...formData, [e.target.name]: e.target.value})
   };
@@ -74,6 +77,7 @@ function ShowSubmit(props) {
     if (formData.message) {
       sendDataToServer(formData);
       props.refresh(props.rkey + 1);
+      setIsSubmitted(true);
     }
   };
   if (props.hasSent) {
@@ -83,7 +87,7 @@ function ShowSubmit(props) {
     <form onSubmit={handleSubmit}>
       <input type="text" autoComplete='off' value={formData.message} name='message' onChange={onHandleChange} />
       <br />
-      <button type='submit'>Submit and Roll</button>
+      <button type='submit' disabled={isSubmitted}>Submit and Roll</button>
     </form>
   );
 }
