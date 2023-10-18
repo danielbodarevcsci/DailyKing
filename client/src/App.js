@@ -63,7 +63,7 @@ function ShowWinner({ data }) {
   return (
     <div class="d-flex flex-column align-items-center justify-content-center text-center">
       <h1 class="h1">{data.location ?? 'Location not loaded'}</h1>
-      <h1 class="display-5 fw-light mb-1 bg-light border p-3">{data.message ?? '(No posts yet)'}</h1>
+      <h1 class="display-5 fw-light mb-1 bg-light border rounded p-3">{data.message ?? '(No posts yet)'}</h1>
       <small class="fw-light">{data.roll?.toLocaleString()}</small>
       <p class="fw-light mt-4">{data.localRoll ? `You rolled: ${data.localRoll?.toLocaleString()}` : ''}</p>
     </div>
