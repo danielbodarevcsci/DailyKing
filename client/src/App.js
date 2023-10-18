@@ -39,11 +39,12 @@ function ShowPosts() {
     })
   }, [rkey]);
   return (
-    <div class="jumbotron text-center">
-      <ShowWinner data={data} />
-      <ShowSubmit hasSent={data.localRoll} refresh={refresh} rkey={rkey} />
-      <br /><br />
-      <button onClick={resetData}>clear</button>
+    <div class="container">
+      <div class="d-flex flex-column align-items-center justify-content-center">
+        <ShowWinner data={data} />
+        <ShowSubmit hasSent={data.localRoll} refresh={refresh} rkey={rkey} />
+        <button class="btn btn-secondary w-20 mt-5" onClick={resetData}>Clear</button>
+      </div>
     </div>
   );
 }
@@ -61,9 +62,9 @@ function ShowWinner({ data }) {
   }
   return (
     <div>
-      <h2>{data.location}</h2>
-      <h3>{data.message ?? '(No posts yet)'}</h3>
-      <p>{data.roll?.toLocaleString()}</p>
+      <h1 class="h1">{data.location ?? 'Location not loaded'}</h1>
+      <h1 class="display-4 text-center font-weight-thin mb-1">{data.message ?? '(No posts yet)'}</h1>
+      <small class="font-weight-light">{data.roll?.toLocaleString()}</small>
       <p>{data.localRoll ? `You rolled: ${data.localRoll?.toLocaleString()}` : ''}</p>
     </div>
   );
@@ -87,10 +88,9 @@ function ShowSubmit(props) {
     return;
   }
   return (
-    <form class="form-group" onSubmit={handleSubmit}>
-      <textarea class="form-control" rows="4" value={formData.message} name='message' onChange={onHandleChange} />
-      <br />
-      <button type='submit' disabled={isSubmitted}>Submit and Roll</button>
+    <form class="form-group w-75 mt-2" onSubmit={handleSubmit}>
+      <textarea class="form-control" rows="3" value={formData.message} name='message' onChange={onHandleChange} />
+      <button type='submit' class="btn btn-outline-success btn-lg w-100 mt-3" disabled={isSubmitted}>Submit and Roll</button>
     </form>
   );
 }
