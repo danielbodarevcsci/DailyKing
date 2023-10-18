@@ -88,9 +88,9 @@ function ShowSubmit(props) {
     return;
   }
   return (
-    <form class="form-group w-50 mt-2" onSubmit={handleSubmit}>
+    <form class="form-group w-50" onSubmit={handleSubmit}>
       <textarea class="form-control" maxLength={255} rows="3" value={formData.message} name='message' onChange={onHandleChange} />
-      <button type='submit'class="btn btn-outline-success btn-sm w-100 mt-3" disabled={isSubmitted}>
+      <button type='submit'class="btn btn-outline-success btn-sm w-100 mt-2" disabled={isSubmitted}>
         Submit and Roll
       </button>
     </form>
