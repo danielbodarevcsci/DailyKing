@@ -40,10 +40,10 @@ function ShowPosts() {
   }, [rkey]);
   return (
     <div class="container">
-      <div class="d-flex flex-column align-items-center justify-content-center">
+      <div class="d-flex flex-column align-items-center justify-content-center mt-5">
         <ShowWinner data={data} />
         <ShowSubmit hasSent={data.localRoll} refresh={refresh} rkey={rkey} />
-        <button class="btn btn-secondary w-20 mt-5" onClick={resetData}>Clear</button>
+        <button class="btn btn-outline-secondary btn-sm w-20 mt-5" onClick={resetData}>Clear</button>
       </div>
     </div>
   );
@@ -61,11 +61,11 @@ function ShowWinner({ data }) {
     return <p>No posts found in your location...</p>;
   }
   return (
-    <div>
+    <div class="d-flex flex-column align-items-center justify-content-center text-center">
       <h1 class="h1">{data.location ?? 'Location not loaded'}</h1>
-      <h1 class="display-4 text-center font-weight-thin mb-1">{data.message ?? '(No posts yet)'}</h1>
-      <small class="font-weight-light">{data.roll?.toLocaleString()}</small>
-      <p>{data.localRoll ? `You rolled: ${data.localRoll?.toLocaleString()}` : ''}</p>
+      <h1 class="display-5 fw-light mb-1 bg-light border p-3">{data.message ?? '(No posts yet)'}</h1>
+      <small class="fw-light">{data.roll?.toLocaleString()}</small>
+      <p class="fw-light mt-4">{data.localRoll ? `You rolled: ${data.localRoll?.toLocaleString()}` : ''}</p>
     </div>
   );
 }
@@ -88,9 +88,11 @@ function ShowSubmit(props) {
     return;
   }
   return (
-    <form class="form-group w-75 mt-2" onSubmit={handleSubmit}>
-      <textarea class="form-control" rows="3" value={formData.message} name='message' onChange={onHandleChange} />
-      <button type='submit' class="btn btn-outline-success btn-lg w-100 mt-3" disabled={isSubmitted}>Submit and Roll</button>
+    <form class="form-group w-50 mt-2" onSubmit={handleSubmit}>
+      <textarea class="form-control" maxLength={255} rows="3" value={formData.message} name='message' onChange={onHandleChange} />
+      <button type='submit'class="btn btn-outline-success btn-sm w-100 mt-3" disabled={isSubmitted}>
+        Submit and Roll
+      </button>
     </form>
   );
 }
