@@ -22,9 +22,7 @@ function rollNumberOnServer(rkey, refresh) {
 }
 
 function App() {
-  return (
-    <ShowPosts />
-  );
+  return <ShowPosts />
 }
 
 export default App;
@@ -80,18 +78,19 @@ function ShowWinner({ data }) {
 }
 
 function ShowWinnerMessage({ data }) {
-  const [mouseOver, setMouseOver] = useState(false);
-  const handleMouseOver = () => {
-    setMouseOver(true);
-  };
-  const handleMouseOut = () => {
-    setMouseOver(false);
-  };
   return (
-    <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}
-      class="bg-light border rounded p-3">
+    <div class="bg-light border rounded p-3">
       <div class="display-6 fw-light text-break">{data.message ?? '(No posts yet)'}</div>
-      {mouseOver ?? <p>Mouse over brug</p>}
+      <ShowVotes data={data} />
+    </div>
+  );
+}
+
+function ShowVotes({ data }) {
+  return (
+    <div class="w-100 d-flex justify-content-start">
+      <i class="bi vote bi-hand-thumbs-up"></i>
+      <i class="bi vote bi-hand-thumbs-down"></i>
     </div>
   );
 }
