@@ -98,22 +98,35 @@ function rememberIp(ip, roll) {
 app.post('/submit-message', async (req, res) => {
     console.log(req.body);
     const ip = getIp(req);
+    const ipRoll = checkIp(ip);
+    if (!ipRoll) {
+        return;
+    }
     const location = getLocation(ip);
     var post = await getPost(location);
-    const roll = getRoll();
     if (!post) {
         post = {
             message: req.body.message,
             location: location,
-            roll: roll
-        }
+            roll: ipRoll
+        };
         await insertPost(post);
-    } else if (roll > post.roll) {
-        post.roll = roll;
+    } else if (ipRoll > post.roll) {
+        post.roll = ipRoll;
         post.message = req.body.message;
         await updatePost(post);
     }
-    rememberIp(ip, roll);
+    res.json({response: 'Message received.'});
+});
+
+app.post('/roll-number', (req, res) => {
+    console.log(req.body);
+    const ip = getIp(req);
+    const roll = checkIp(ip);
+    if (!roll) {
+        const newRoll = getRoll();
+        rememberIp(ip, newRoll);
+    }
     res.json({response: 'Message received.'});
 });
 

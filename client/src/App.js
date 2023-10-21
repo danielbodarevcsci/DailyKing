@@ -3,8 +3,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function sendDataToServer(data, rkey, refresh) {
+function submitMessageToServer(data, rkey, refresh) {
   axios.post('http://localhost:5000/submit-message', data)
+    .then(response => {
+      console.log(response);
+      refresh(rkey + 1);
+    })
+    .catch(error => console.error(error));
+}
+
+function rollNumberOnServer(rkey, refresh) {
+  axios.post('http://localhost:5000/roll-number')
     .then(response => {
       console.log(response);
       refresh(rkey + 1);
@@ -42,7 +51,7 @@ function ShowPosts() {
     <div class="container">
       <div class="d-flex flex-column align-items-center justify-content-center mt-5">
         <ShowWinner data={data} />
-        <ShowSubmit hasSent={data.localRoll} refresh={refresh} rkey={rkey} />
+        <ShowInput data={data} refresh={refresh} rkey={rkey} />
         <button class="btn btn-outline-secondary btn-sm w-20 mt-5" onClick={resetData}>Clear</button>
       </div>
     </div>
@@ -81,13 +90,35 @@ function ShowWinnerMessage({ data }) {
   return (
     <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}
       class="bg-light border rounded p-3">
-      <h1 class="display-5 fw-light ">{data.message ?? '(No posts yet)'}</h1>
+      <div class="display-6 fw-light text-break">{data.message ?? '(No posts yet)'}</div>
       {mouseOver ?? <p>Mouse over brug</p>}
     </div>
   );
 }
 
-function ShowSubmit(props) {
+function ShowInput({ data, refresh, rkey }) {
+  // If already rolled.
+  if (data.localRoll) {
+    return <ShowSubmit data={data} refresh={refresh} rkey={rkey} />
+  } else {
+    return <ShowRoll refresh={refresh} rkey={rkey} />
+  }
+}
+
+function ShowRoll({ refresh, rkey }) {
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const handleClick = (e) => {
+    rollNumberOnServer(rkey, refresh);
+    setIsSubmitted(true);
+  };
+  return (
+    <button onClick={handleClick} disabled={isSubmitted} class="btn btn-outline-danger btn-sm w-25 mt-2">
+      Roll a Number
+    </button>
+  );
+}
+
+function ShowSubmit({ data, refresh, rkey }) {
   const [formData, setFormData] = useState({ message: '' });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const onHandleChange = (e) => {
@@ -96,19 +127,21 @@ function ShowSubmit(props) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.message) {
-      sendDataToServer(formData, props.rkey, props.refresh);
-      props.refresh(props.rkey + 2);
+      submitMessageToServer(formData, rkey, refresh);
       setIsSubmitted(true);
     }
   };
-  if (props.hasSent) {
+  if (data.localRoll < data.roll) {
+    return <p class="fw-semibold mt-4">Try again tomorrow.</p>
+  }
+  if (data.localRoll == data.roll) {
     return;
   }
   return (
     <form class="form-group w-50" onSubmit={handleSubmit}>
       <textarea class="form-control" maxLength={255} rows="3" value={formData.message} name='message' onChange={onHandleChange} />
       <button type='submit'class="btn btn-outline-success btn-sm w-100 mt-2" disabled={isSubmitted}>
-        Submit and Roll
+        Submit
       </button>
     </form>
   );
