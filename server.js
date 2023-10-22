@@ -121,8 +121,9 @@ async function run() {
     try {
         await client.connect();
         await client.db("admin").command({ ping: 1 });
-        await clearAllPosts();
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        await clearAllPosts();
+        console.log("Cleared all posts.");
     } finally { }
 }
 
