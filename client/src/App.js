@@ -86,9 +86,12 @@ function ShowWinner({ data }) {
 }
 
 function ShowWinnerMessage({ data }) {
+  if (!data?.message) {
+    return <small class="fw-light">No posts yet.</small>;
+  }
   return (
     <div class="bg-light border rounded p-3">
-      <div class="display-6 fw-light text-break">{data.message ?? '(No posts yet)'}</div>
+      <div class="display-6 fw-light text-break">{data.message}</div>
       <ShowVotes data={data} />
     </div>
   );
