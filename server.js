@@ -8,8 +8,17 @@ app.options('*', cors());
 app.use(cors());
 app.use(express.json());
 const { lookup } = require('geoip-lite');
+const cron = require('node-cron');
 
 const ipCache = {};
+
+cron.schedule('0 0 0 * * *', dailyReset);
+
+async function dailyReset() {
+    await clearAllPosts();
+    clearStoredRolls();
+    console.log("Cleared all posts and rolls!")
+}
 
 app.get('/', async (req, res) => {
     const ip = getIp(req);
@@ -79,6 +88,12 @@ async function incrementThumbsDown(location) {
     collection.updateOne({location : location}, {$inc: { thumbsdown: 1 }});
 }
 
+async function clearAllPosts() {
+    const db = client.db('dailyking');
+    const collection = db.collection('Posts');
+    await collection.deleteMany({});
+}
+
 function getRoll() {
     return Math.floor(Math.random() * 95_000);
 }
@@ -113,6 +128,12 @@ function getStoredRoll(ip) {
 
 function storeRoll(ip, roll) {
     ipCache[ip] = roll;
+}
+
+function clearStoredRolls() {
+    for (var ip in ipCache) {
+        delete ipCache[ip];
+    }
 }
 
 app.post('/vote', (req, res) => {
@@ -160,4 +181,4 @@ app.post('/roll-number', (req, res) => {
     res.json({response: 'Message received.'});
 });
 
-app.post('/reset', () => { for (var ip in ipCache) delete ipCache[ip] });
+app.post('/reset', clearStoredRolls);
