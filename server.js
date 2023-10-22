@@ -95,7 +95,14 @@ async function clearAllPosts() {
 }
 
 function getRoll() {
-    return Math.floor(Math.random() * 95_000);
+    var roll = Math.random() * 10_000;
+    for (var i = 0; i < 9; i++) {
+        if (Math.random() < 0.3) {
+            break;
+        }
+        roll = roll + (Math.random() * 10_000);
+    }
+    return Math.floor(roll);
 }
 
 let client;
