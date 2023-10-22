@@ -19,7 +19,9 @@ app.get('/', async (req, res) => {
         location: location,
         message: post?.message,
         roll: post?.roll,
-        localRoll: checkIp(ip)
+        thumbsup: post?.thumbsup,
+        thumbsdown: post?.thumbsdown,
+        localRoll: getStoredRoll(ip)
     }); 
 });
 
@@ -59,6 +61,24 @@ async function insertPost(post) {
     });
 }
 
+async function incrementThumbsUp(location) {
+    if (!location) {
+        return;
+    }
+    const db = client.db('dailyking');
+    const collection = db.collection('Posts');
+    collection.updateOne({location : location}, {$inc: { thumbsup: 1 }});
+}
+
+async function incrementThumbsDown(location) {
+    if (!location) {
+        return;
+    }
+    const db = client.db('dailyking');
+    const collection = db.collection('Posts');
+    collection.updateOne({location : location}, {$inc: { thumbsdown: 1 }});
+}
+
 function getRoll() {
     return Math.floor(Math.random() * 95_000);
 }
@@ -87,18 +107,28 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-function checkIp(ip) {
+function getStoredRoll(ip) {
     return ipCache[ip];
 }
 
-function rememberIp(ip, roll) {
+function storeRoll(ip, roll) {
     ipCache[ip] = roll;
 }
+
+app.post('/vote', (req, res) => {
+    const ip = getIp(req);
+    const location = getLocation(ip);
+    if (req.body.vote == "up") {
+        incrementThumbsUp(location);
+    } else if (req.body.vote == "down") {
+        incrementThumbsDown(location);
+    }
+});
 
 app.post('/submit-message', async (req, res) => {
     console.log(req.body);
     const ip = getIp(req);
-    const ipRoll = checkIp(ip);
+    const ipRoll = getStoredRoll(ip);
     if (!ipRoll) {
         return;
     }
@@ -122,12 +152,12 @@ app.post('/submit-message', async (req, res) => {
 app.post('/roll-number', (req, res) => {
     console.log(req.body);
     const ip = getIp(req);
-    const roll = checkIp(ip);
+    const roll = getStoredRoll(ip);
     if (!roll) {
         const newRoll = getRoll();
-        rememberIp(ip, newRoll);
+        storeRoll(ip, newRoll);
     }
     res.json({response: 'Message received.'});
 });
 
-app.post('/reset', (req, res) => { for (var ip in ipCache) delete ipCache[ip] });
+app.post('/reset', () => { for (var ip in ipCache) delete ipCache[ip] });

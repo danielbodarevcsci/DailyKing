@@ -21,6 +21,14 @@ function rollNumberOnServer(rkey, refresh) {
     .catch(error => console.error(error));
 }
 
+function sendVoteToServer(vote) {
+  axios.post('http://localhost:5000/vote', { vote: vote })
+    .then(response => {
+      console.log(response);
+    })
+    .catch(error => console.error(error));
+}
+
 function App() {
   return <ShowPosts />
 }
@@ -87,10 +95,47 @@ function ShowWinnerMessage({ data }) {
 }
 
 function ShowVotes({ data }) {
+  const [tuHovered, setTuHovered] = useState(false);
+  const [tdHovered, setTdHovered] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [thumbsUp, setThumbsUp] = useState(data?.thumbsup || 0);
+  const [thumbsDown, setThumbsDown] = useState(data?.thumbsdown || 0);
+  const tuEnter = () => setTuHovered(true);
+  const tuLeave = () => setTuHovered(false);
+  const tdEnter = () => setTdHovered(true);
+  const tdLeave = () => setTdHovered(false);
+  const tuClass = tuHovered ? "bi vote bi-hand-thumbs-up-fill" : "bi vote bi-hand-thumbs-up";
+  const tdClass = tdHovered ? "bi vote bi-hand-thumbs-down-fill" : "bi vote bi-hand-thumbs-down";
+  const tuClick = () => {
+    sendVoteToServer("up");
+    setThumbsUp(thumbsUp + 1)
+    setHasVoted(true);
+  };
+  const tdClick = () => {
+    sendVoteToServer("down");
+    setThumbsDown(thumbsDown + 1);
+    setHasVoted(true);
+  };
   return (
     <div class="w-100 d-flex justify-content-start">
-      <i class="bi vote bi-hand-thumbs-up"></i>
-      <i class="bi vote bi-hand-thumbs-down"></i>
+    <button 
+      onClick={tuClick} 
+      onMouseEnter={tuEnter} 
+      onMouseLeave={tuLeave} 
+      class="btn voteBtn"
+      disabled={hasVoted}>
+        <i class={tuClass}></i>
+        <small>{ thumbsUp.toLocaleString() }</small>
+    </button>
+    <button 
+      onClick={tdClick} 
+      onMouseEnter={tdEnter} 
+      onMouseLeave={tdLeave} 
+      class="btn voteBtn"
+      disabled={hasVoted}>
+        <i class={tdClass}></i>
+        <small>{ thumbsDown.toLocaleString() }</small>
+    </button>
     </div>
   );
 }
@@ -106,7 +151,7 @@ function ShowInput({ data, refresh, rkey }) {
 
 function ShowRoll({ refresh, rkey }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const handleClick = (e) => {
+  const handleClick = () => {
     rollNumberOnServer(rkey, refresh);
     setIsSubmitted(true);
   };
