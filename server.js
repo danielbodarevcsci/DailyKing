@@ -189,5 +189,3 @@ app.post('/roll-number', (req, res) => {
     }
     res.json({response: 'Message received.'});
 });
-
-app.post('/reset', clearStoredRolls);

@@ -1,33 +1,7 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { toServer } from './Comms/ToServer';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
-function submitMessageToServer(data, rkey, refresh) {
-  axios.post('http://localhost:5000/submit-message', data)
-    .then(response => {
-      console.log(response);
-      refresh(rkey + 1);
-    })
-    .catch(error => console.error(error));
-}
-
-function rollNumberOnServer(rkey, refresh) {
-  axios.post('http://localhost:5000/roll-number')
-    .then(response => {
-      console.log(response);
-      refresh(rkey + 1);
-    })
-    .catch(error => console.error(error));
-}
-
-function sendVoteToServer(vote) {
-  axios.post('http://localhost:5000/vote', { vote: vote })
-    .then(response => {
-      console.log(response);
-    })
-    .catch(error => console.error(error));
-}
 
 function App() {
   return <ShowPosts />
@@ -58,17 +32,9 @@ function ShowPosts() {
       <div class="d-flex flex-column align-items-center justify-content-center mt-5">
         <ShowWinner data={data} />
         <ShowInput data={data} refresh={refresh} rkey={rkey} />
-        <button class="btn btn-outline-secondary btn-sm w-20 mt-5" onClick={resetData}>Clear</button>
       </div>
     </div>
   );
-}
-
-function resetData() {
-  axios.post('http://localhost:5000/reset')
-    .then(response => console.log(response))
-    .catch(error => console.error(error));
-  window.location.reload();
 }
 
 function ShowWinner({ data }) {
@@ -115,13 +81,13 @@ function ShowVotes({ data }) {
     setThumbsDown(data?.thumbsdown || 0);
   }, [data]);
   const tuClick = () => {
-    sendVoteToServer("up");
+    toServer.vote("up");
     setThumbsUp(thumbsUp + 1)
     setHasVoted(true);
     setLiked(true);
   };
   const tdClick = () => {
-    sendVoteToServer("down");
+    toServer.vote("down");
     setThumbsDown(thumbsDown + 1);
     setHasVoted(true);
     setLiked(false);
@@ -162,7 +128,7 @@ function ShowInput({ data, refresh, rkey }) {
 function ShowRoll({ refresh, rkey }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const handleClick = () => {
-    rollNumberOnServer(rkey, refresh);
+    toServer.roll(rkey, refresh);
     setIsSubmitted(true);
   };
   return (
@@ -181,7 +147,7 @@ function ShowSubmit({ data, refresh, rkey }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.message) {
-      submitMessageToServer(formData, rkey, refresh);
+      toServer.submit(formData, rkey, refresh);
       setIsSubmitted(true);
     }
   };
