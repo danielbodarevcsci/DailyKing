@@ -100,42 +100,49 @@ function ShowVotes({ data }) {
   const [hasVoted, setHasVoted] = useState(false);
   const [thumbsUp, setThumbsUp] = useState(data?.thumbsup || 0);
   const [thumbsDown, setThumbsDown] = useState(data?.thumbsdown || 0);
+  const [liked, setLiked] = useState(false);
   const tuEnter = () => setTuHovered(true);
   const tuLeave = () => setTuHovered(false);
   const tdEnter = () => setTdHovered(true);
   const tdLeave = () => setTdHovered(false);
-  const tuClass = tuHovered ? "bi vote bi-hand-thumbs-up-fill" : "bi vote bi-hand-thumbs-up";
-  const tdClass = tdHovered ? "bi vote bi-hand-thumbs-down-fill" : "bi vote bi-hand-thumbs-down";
+  const tuClass = tuHovered || (hasVoted && liked) ? "bi vote bi-hand-thumbs-up-fill" : "bi vote bi-hand-thumbs-up";
+  const tdClass = tdHovered || (hasVoted && !liked) ? "bi vote bi-hand-thumbs-down-fill" : "bi vote bi-hand-thumbs-down";
+  useEffect(() => {
+    setThumbsUp(data?.thumbsup || 0);
+    setThumbsDown(data?.thumbsdown || 0);
+  }, [data]);
   const tuClick = () => {
     sendVoteToServer("up");
     setThumbsUp(thumbsUp + 1)
     setHasVoted(true);
+    setLiked(true);
   };
   const tdClick = () => {
     sendVoteToServer("down");
     setThumbsDown(thumbsDown + 1);
     setHasVoted(true);
+    setLiked(false);
   };
   return (
     <div class="w-100 d-flex justify-content-start">
-    <button 
-      onClick={tuClick} 
-      onMouseEnter={tuEnter} 
-      onMouseLeave={tuLeave} 
-      class="btn voteBtn"
-      disabled={hasVoted}>
-        <i class={tuClass}></i>
-        <small>{ thumbsUp.toLocaleString() }</small>
-    </button>
-    <button 
-      onClick={tdClick} 
-      onMouseEnter={tdEnter} 
-      onMouseLeave={tdLeave} 
-      class="btn voteBtn"
-      disabled={hasVoted}>
-        <i class={tdClass}></i>
-        <small>{ thumbsDown.toLocaleString() }</small>
-    </button>
+      <button 
+        onClick={tuClick} 
+        onMouseEnter={tuEnter} 
+        onMouseLeave={tuLeave} 
+        class="btn voteBtn"
+        disabled={hasVoted}>
+          <i class={tuClass}></i>
+          <small>{ thumbsUp.toLocaleString() }</small>
+      </button>
+      <button 
+        onClick={tdClick} 
+        onMouseEnter={tdEnter} 
+        onMouseLeave={tdLeave} 
+        class="btn voteBtn"
+        disabled={hasVoted}>
+          <i class={tdClass}></i>
+          <small>{ thumbsDown.toLocaleString() }</small>
+      </button>
     </div>
   );
 }
@@ -178,7 +185,7 @@ function ShowSubmit({ data, refresh, rkey }) {
   if (data.localRoll < data.roll) {
     return <p class="fw-semibold mt-4">Try again tomorrow.</p>
   }
-  if (data.localRoll == data.roll) {
+  if (data.localRoll === data.roll) {
     return;
   }
   return (
