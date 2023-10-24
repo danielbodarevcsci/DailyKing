@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const submitMessage = (data, rkey, refresh) => {
+export const submitMessageToServer = (data, rkey, refresh) => {
   axios.post('http://localhost:5000/submit-message', data)
     .then(response => {
       console.log(response);
@@ -9,7 +9,7 @@ export const submitMessage = (data, rkey, refresh) => {
     .catch(error => console.error(error));
 };
 
-export const submitVote = (vote) => {
+export const submitVoteToServer = (vote) => {
   axios.post('http://localhost:5000/vote', { vote: vote })
     .then(response => {
       console.log(response);
@@ -17,7 +17,7 @@ export const submitVote = (vote) => {
     .catch(error => console.error(error));
 };
   
-export const rollNumber = (rkey, refresh) => {
+export const rollNumberOnServer = (rkey, refresh) => {
   axios.post('http://localhost:5000/roll-number')
     .then(response => {
       console.log(response);
