@@ -19,7 +19,7 @@ const Home = () => {
         .catch(error => {
             console.error('Fetch error: ', error);
         })
-    }, [rkey]); // TODO: need rkey here?
+    }, [rkey]);
     return (
         <div class="container">
           <div class="d-flex flex-column align-items-center justify-content-center mt-5">
