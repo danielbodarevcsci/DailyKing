@@ -1,3 +1,7 @@
+import { getPost, insertPost, updatePost } from './database.js';
+import { getIp, getLocation } from './location.js';
+import { getStoredRoll } from './cache.js';
+
 export const getWinningPost = async (req, res) => {
     const ip = getIp(req);
     const location = getLocation(ip);
@@ -32,17 +36,6 @@ export const submitPost = async (req, res) => {
         post.roll = ipRoll;
         post.message = req.body.message;
         await updatePost(post);
-    }
-    res.json({response: 'Message received.'});
-};
-
-export const rollNumber = (req, res) => {
-    console.log(req.body);
-    const ip = getIp(req);
-    const roll = getStoredRoll(ip);
-    if (!roll) {
-        const newRoll = getRoll();
-        storeRoll(ip, newRoll);
     }
     res.json({response: 'Message received.'});
 };

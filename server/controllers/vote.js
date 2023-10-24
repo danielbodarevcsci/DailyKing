@@ -1,3 +1,6 @@
+import { incrementThumbsUp, incrementThumbsDown } from './database';
+import { getIp, getLocation } from './location.js';
+
 export const submitVote = (req, res) => {
     const ip = getIp(req);
     const location = getLocation(ip);
