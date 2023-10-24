@@ -1,5 +1,5 @@
 const { ServerApiVersion } = require('mongodb');
-require('dotenv').config({path: "../.env"});
+require('dotenv').config({path: "./server/.env"});
 
 let client;
 const MongoClient = require('mongodb').MongoClient;
@@ -11,8 +11,6 @@ client = new MongoClient(process.env.MONGODB, {
     } 
 });
 
-run().catch(console.dir);
-
 async function run() {
     try {
         await client.connect();
@@ -22,21 +20,22 @@ async function run() {
         console.log("Cleared all posts.");
     } finally { }
 }
+run().catch(console.dir);
 
-export async function getPost(location) {
+async function getPost(location) {
     const db = client.db('dailyking');
     const collection = db.collection('Posts');
     const result = await collection.findOne({location:location});
     return result;
 }
 
-export async function updatePost(post) {
+async function updatePost(post) {
     const db = client.db('dailyking');
     const collection = db.collection('Posts');
     await collection.updateOne({_id:post._id}, {$set: {message: post.message, roll: post.roll}});
 }
 
-export async function insertPost(post) {
+async function insertPost(post) {
     const db = client.db('dailyking');
     const collection = db.collection('Posts');
     await collection.insertOne(post, 
@@ -46,7 +45,7 @@ export async function insertPost(post) {
     });
 }
 
-export async function incrementThumbsUp(location) {
+async function incrementThumbsUp(location) {
     if (!location) {
         return;
     }
@@ -55,7 +54,7 @@ export async function incrementThumbsUp(location) {
     collection.updateOne({location : location}, {$inc: { thumbsup: 1 }});
 }
 
-export async function incrementThumbsDown(location) {
+async function incrementThumbsDown(location) {
     if (!location) {
         return;
     }
@@ -64,8 +63,17 @@ export async function incrementThumbsDown(location) {
     collection.updateOne({location : location}, {$inc: { thumbsdown: 1 }});
 }
 
-export async function clearAllPosts() {
+async function clearAllPosts() {
     const db = client.db('dailyking');
     const collection = db.collection('Posts');
     await collection.deleteMany({});
 }
+
+module.exports = {
+    getPost,
+    updatePost,
+    insertPost,
+    incrementThumbsUp,
+    incrementThumbsDown,
+    clearAllPosts
+};

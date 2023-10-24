@@ -1,15 +1,21 @@
 const ipCache = {};
 
-export function getStoredRoll(ip) {
+function getStoredRoll(ip) {
     return ipCache[ip];
 }
 
-export function storeRoll(ip, roll) {
+function storeRoll(ip, roll) {
     ipCache[ip] = roll;
 }
 
-export function clearStoredRolls() {
+function clearStoredRolls() {
     for (var ip in ipCache) {
         delete ipCache[ip];
     }
 }
+
+module.exports = {
+    getStoredRoll,
+    storeRoll,
+    clearStoredRolls
+};

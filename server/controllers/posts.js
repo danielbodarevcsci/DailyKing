@@ -1,8 +1,8 @@
-import { getPost, insertPost, updatePost } from './database.js';
-import { getIp, getLocation } from './location.js';
-import { getStoredRoll } from './cache.js';
+const { getPost, insertPost, updatePost } = require('./database.js');
+const { getIp, getLocation } = require('./location.js');
+const { getStoredRoll } = require('./cache.js');
 
-export const getWinningPost = async (req, res) => {
+async function getWinningPost(req, res) {
     const ip = getIp(req);
     const location = getLocation(ip);
     var post = await getPost(location);
@@ -16,7 +16,7 @@ export const getWinningPost = async (req, res) => {
     }); 
 };
 
-export const submitPost = async (req, res) => {
+async function submitPost(req, res) {
     console.log(req.body);
     const ip = getIp(req);
     const ipRoll = getStoredRoll(ip);
@@ -38,4 +38,9 @@ export const submitPost = async (req, res) => {
         await updatePost(post);
     }
     res.json({response: 'Message received.'});
+};
+
+module.exports = {
+    getWinningPost,
+    submitPost
 };

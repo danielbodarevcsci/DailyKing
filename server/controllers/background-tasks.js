@@ -1,5 +1,5 @@
-import { clearStoredRolls } from './cache.js';
-import { clearAllPosts } from './database.js';
+const { clearStoredRolls } = require('./cache.js');
+const { clearAllPosts } = require('./database.js');
 
 const cron = require('node-cron');
 

@@ -1,7 +1,7 @@
-import { incrementThumbsUp, incrementThumbsDown } from './database';
-import { getIp, getLocation } from './location.js';
+const { incrementThumbsUp, incrementThumbsDown } = require('./database');
+const { getIp, getLocation } = require('./location.js');
 
-export const submitVote = (req, res) => {
+function submitVote(req, res) {
     const ip = getIp(req);
     const location = getLocation(ip);
     if (req.body.vote == "up") {
@@ -9,4 +9,8 @@ export const submitVote = (req, res) => {
     } else if (req.body.vote == "down") {
         incrementThumbsDown(location);
     }
+}
+
+module.exports = {
+    submitVote
 };

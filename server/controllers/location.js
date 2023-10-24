@@ -1,6 +1,6 @@
 const { lookup } = require('geoip-lite');
 
-export function getLocation(ip) {
+function getLocation(ip) {
     const geo = lookup(ip);
     if (geo) {
         return `${geo.city}, ${geo.region}`;
@@ -9,6 +9,11 @@ export function getLocation(ip) {
     }
 }
 
-export function getIp(req) {
+function getIp(req) {
     return req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 }
+
+module.exports = {
+    getLocation,
+    getIp
+};

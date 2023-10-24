@@ -5,9 +5,9 @@ const app = express();
 app.options('*', cors());
 app.use(cors());
 app.use(express.json());
-import { submitVote } from '../controllers/vote.js';
-import { getWinningPost, submitPost } from '../controllers/posts.js';
-import { rollNumber } from '../controllers/randomness.js';
+const { submitVote } = require('../controllers/vote.js');
+const { getWinningPost, submitPost } = require('../controllers/posts.js');
+const { rollNumber } = require('../controllers/randomness.js');
 
 app.get('/', getWinningPost);
 app.post('/vote', submitVote);

@@ -1,7 +1,7 @@
-import { getStoredRoll, storeRoll } from './cache.js';
-import { getIp } from './location.js';
+const { getStoredRoll, storeRoll } = require('./cache.js');
+const { getIp } = require('./location.js');
 
-export const rollNumber = (req, res) => {
+const rollNumber = (req, res) => {
     console.log(req.body);
     const ip = getIp(req);
     const roll = getStoredRoll(ip);
@@ -22,3 +22,8 @@ function getRoll() {
     }
     return Math.floor(roll);
 }
+
+module.exports = {
+    rollNumber,
+    getRoll
+};
