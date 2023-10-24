@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import { toServer } from './Comms/ToServer';
+import { submitMessage, submitVote, rollNumber } from './api/to-server';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -81,13 +81,13 @@ function ShowVotes({ data }) {
     setThumbsDown(data?.thumbsdown || 0);
   }, [data]);
   const tuClick = () => {
-    toServer.vote("up");
+    submitVote("up");
     setThumbsUp(thumbsUp + 1)
     setHasVoted(true);
     setLiked(true);
   };
   const tdClick = () => {
-    toServer.vote("down");
+    submitVote("down");
     setThumbsDown(thumbsDown + 1);
     setHasVoted(true);
     setLiked(false);
@@ -128,7 +128,7 @@ function ShowInput({ data, refresh, rkey }) {
 function ShowRoll({ refresh, rkey }) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const handleClick = () => {
-    toServer.roll(rkey, refresh);
+    rollNumber(rkey, refresh);
     setIsSubmitted(true);
   };
   return (
@@ -147,7 +147,7 @@ function ShowSubmit({ data, refresh, rkey }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.message) {
-      toServer.submit(formData, rkey, refresh);
+      submitMessage(formData, rkey, refresh);
       setIsSubmitted(true);
     }
   };
