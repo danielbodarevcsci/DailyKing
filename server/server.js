@@ -1,12 +1,5 @@
-const port = 5000;
 const { ServerApiVersion } = require('mongodb');
 require('dotenv').config({path: "./server/.env"});
-const express = require('express');
-const cors = require('cors');
-const app = express();
-app.options('*', cors());
-app.use(cors());
-app.use(express.json());
 const { lookup } = require('geoip-lite');
 const cron = require('node-cron');
 
@@ -19,20 +12,6 @@ async function dailyReset() {
     clearStoredRolls();
     console.log("Cleared all posts and rolls!")
 }
-
-app.get('/', async (req, res) => {
-    const ip = getIp(req);
-    const location = getLocation(ip);
-    var post = await getPost(location);
-    res.send({
-        location: location,
-        message: post?.message,
-        roll: post?.roll,
-        thumbsup: post?.thumbsup,
-        thumbsdown: post?.thumbsdown,
-        localRoll: getStoredRoll(ip)
-    }); 
-});
 
 function getLocation(ip) {
     const geo = lookup(ip);
@@ -127,10 +106,6 @@ async function run() {
     } finally { }
 }
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
 function getStoredRoll(ip) {
     return ipCache[ip];
 }
@@ -144,48 +119,3 @@ function clearStoredRolls() {
         delete ipCache[ip];
     }
 }
-
-app.post('/vote', (req, res) => {
-    const ip = getIp(req);
-    const location = getLocation(ip);
-    if (req.body.vote == "up") {
-        incrementThumbsUp(location);
-    } else if (req.body.vote == "down") {
-        incrementThumbsDown(location);
-    }
-});
-
-app.post('/submit-message', async (req, res) => {
-    console.log(req.body);
-    const ip = getIp(req);
-    const ipRoll = getStoredRoll(ip);
-    if (!ipRoll) {
-        return;
-    }
-    const location = getLocation(ip);
-    var post = await getPost(location);
-    if (!post) {
-        post = {
-            message: req.body.message,
-            location: location,
-            roll: ipRoll
-        };
-        await insertPost(post);
-    } else if (ipRoll > post.roll) {
-        post.roll = ipRoll;
-        post.message = req.body.message;
-        await updatePost(post);
-    }
-    res.json({response: 'Message received.'});
-});
-
-app.post('/roll-number', (req, res) => {
-    console.log(req.body);
-    const ip = getIp(req);
-    const roll = getStoredRoll(ip);
-    if (!roll) {
-        const newRoll = getRoll();
-        storeRoll(ip, newRoll);
-    }
-    res.json({response: 'Message received.'});
-});
