@@ -6,7 +6,7 @@ const Home = () => {
     const [data, setData] = useState([]);
     const [rkey, refresh] = useState(0);
     useEffect(() => {
-        fetch('http://localhost:5000/', { headers:{'Access-Control-Allow-Origin': '*'}})
+        fetch(`http:/${process.env.REACT_APP_EC2IP}/:${REACT_APP_EC2PORT}/`, { headers:{'Access-Control-Allow-Origin': '*'}})
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP Error! Status: ${response.status}`);
