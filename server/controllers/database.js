@@ -1,5 +1,4 @@
 const { ServerApiVersion } = require('mongodb');
-require('dotenv').config({path: "./server/.env"});
 
 let client;
 const MongoClient = require('mongodb').MongoClient;
